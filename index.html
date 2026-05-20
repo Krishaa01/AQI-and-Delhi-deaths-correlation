@@ -1,943 +1,140 @@
 <!DOCTYPE html>
-<html lang="en">
-
+<html>
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Delhi's Air — A Silent Crisis</title>
+  <meta charset="utf-8">
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
-
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
-    html {
-      scroll-behavior: smooth;
-    }
-
-    :root {
-      --bg: #121212;
-      --surface: #ffffff;
-      --border: #e2e8f0;
-      --text: #121212;
-      --muted: #64748b;
-      --accent: #0053FF;
-      --tertiary: #BF3003;
-      --secondary-blue: #5E72C3;
-    }
-
     body {
-      background-color: var(--bg);
-      background-image: radial-gradient(rgba(255, 255, 255, 0.08) 1.5px, transparent 1.5px);
-      background-size: 24px 24px;
-      color: var(--text);
-      font-family: 'Inter', sans-serif;
-      font-weight: 400;
-      line-height: 1.65;
-      padding: 40px 20px;
+      margin: 0;
+      overflow: auto;
+      background: radial-gradient(circle at center, #0a0a1a, #000000);
+      font-family: sans-serif;
     }
 
-    /* ── BANNER ── */
-    .db-banner {
-      max-width: 1000px;
-      margin: 0 auto;
-      background: #121212;
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-bottom: none;
-      padding: 14px 24px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      color: #ffffff;
-      font-size: 13px;
-      font-weight: 600;
-      border-top-left-radius: 6px;
-      border-top-right-radius: 6px;
-      font-family: 'Inter', sans-serif;
-    }
-
-    .db-banner-left {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .db-logo {
-      width: 18px;
-      height: 18px;
-      color: var(--accent);
-    }
-
-    /* ── CONTAINER ── */
-    .dashboard-container {
-      max-width: 1000px;
-      margin: 0 auto;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-bottom-left-radius: 6px;
-      border-bottom-right-radius: 6px;
-      padding: 48px;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
-      position: relative;
-    }
-
-    /* ── NAV ROW ── */
-    .db-nav {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      border-bottom: 1px solid #f1f5f9;
-      padding-bottom: 16px;
-      margin-bottom: 40px;
-      font-size: 11px;
-      font-weight: 700;
-      letter-spacing: 1.5px;
-    }
-
-    .db-nav-left {
-      color: var(--muted);
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .db-nav-divider {
-      color: #e2e8f0;
-    }
-
-    .db-nav-right {
-      color: var(--tertiary);
-      font-weight: 800;
-    }
-
-    /* ── HERO ── */
-    .db-red-line {
-      width: 32px;
-      height: 3px;
-      background: var(--tertiary);
-      margin-bottom: 24px;
-    }
-
-    .db-headline {
-      font-size: clamp(36px, 5.5vw, 64px);
-      font-weight: 800;
-      line-height: 1.1;
-      color: var(--text);
-      margin-bottom: 28px;
-      letter-spacing: -1.5px;
-    }
-
-    .db-sub {
-      font-size: 15px;
-      color: var(--muted);
-      max-width: 620px;
-      line-height: 1.8;
-      margin-bottom: 40px;
-    }
-
-    .hero-divider {
-      display: grid;
-      grid-template-columns: 1fr 1fr 1fr;
-      gap: 32px;
-      border-top: 1px solid #f1f5f9;
-      padding-top: 36px;
-      margin-bottom: 48px;
-    }
-
-    .stat-val {
-      font-size: 38px;
-      font-weight: 800;
-      line-height: 1;
-      letter-spacing: -0.5px;
-    }
-
-    .stat-lbl {
-      font-size: 12px;
-      font-weight: 500;
-      color: var(--muted);
-      margin-top: 8px;
-      line-height: 1.5;
-    }
-
-    /* ── WRAP SECTION ── */
-    .wrap {
-      padding: 64px 0 32px;
-      border-top: 1px solid #f1f5f9;
-      margin-top: 48px;
-    }
-
-    .sec-tag {
-      font-size: 14px;
-      font-weight: 700;
-      letter-spacing: 1.5px;
-      text-transform: uppercase;
-      color: var(--tertiary);
-      margin-bottom: 14px;
-    }
-
-    .sec-title {
-      font-size: 32px;
-      font-weight: 800;
-      line-height: 1.15;
-      color: var(--text);
-      margin-bottom: 16px;
-      letter-spacing: -0.8px;
-    }
-
-    .sec-body {
-      font-size: 14.5px;
-      color: var(--muted);
-      max-width: 600px;
-      line-height: 1.75;
-      margin-bottom: 32px;
-    }
-
-    /* ── CHART ── */
-    .chart-wrap {
-      background: #ffffff;
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      padding: 32px;
-      margin-top: 32px;
-    }
-
-    .chart-head {
-      margin-bottom: 24px;
-    }
-
-    .chart-title {
-      font-size: 18px;
-      font-weight: 700;
-      color: var(--text);
-      margin-bottom: 6px;
-      letter-spacing: -0.3px;
-    }
-
-    .chart-desc {
-      font-size: 12px;
-      color: var(--muted);
-      line-height: 1.5;
-    }
-
-    .chart-legend {
-      display: flex;
-      gap: 24px;
-      margin-bottom: 20px;
-    }
-
-    .leg-item {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 11px;
-      font-weight: 700;
-      color: var(--muted);
-      letter-spacing: 0.5px;
-      text-transform: uppercase;
-    }
-
-    .leg-dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-    }
-
-    .leg-line {
-      width: 18px;
-      height: 2px;
-    }
-
-    canvas {
-      width: 100% !important;
-    }
-
-    /* ── CALLOUT ── */
-    .callout {
-      border-left: 3px solid var(--tertiary);
-      padding: 20px 24px;
-      margin-top: 28px;
-      background: rgba(191, 48, 3, 0.04);
-      font-size: 13.5px;
-      line-height: 1.8;
-      color: #475569;
-      border-radius: 0 6px 6px 0;
-    }
-
-    .callout strong {
-      color: var(--text);
-      font-weight: 600;
-    }
-
-    /* ── HOW IT WORKS ── */
-    .how-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr 1fr;
-      gap: 24px;
-      margin-top: 36px;
-    }
-
-    .how-cell {
-      background: #f8fafc;
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      padding: 32px 24px;
-    }
-
-    .how-num {
-      font-size: 36px;
-      font-weight: 800;
-      color: rgba(0, 83, 255, 0.15);
-      line-height: 1;
-      margin-bottom: 16px;
-    }
-
-    .how-title {
-      font-size: 14px;
-      font-weight: 700;
-      color: var(--text);
-      margin-bottom: 10px;
-    }
-
-    .how-body {
-      font-size: 13px;
-      color: var(--muted);
-      line-height: 1.7;
-    }
-
-    /* ── RED FORT ── */
-    .redfort-section {
-      background: #f8fafc;
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      padding: 40px;
-      margin-top: 48px;
-    }
-
-    .redfort-inner {
-      display: flex;
-      flex-direction: column;
-      gap: 24px;
-    }
-
-    .redfort-tag {
-      font-size: 14px;
-      font-weight: 700;
-      letter-spacing: 1.5px;
-      text-transform: uppercase;
-      color: var(--tertiary);
-      margin-bottom: 12px;
-    }
-
-    .redfort-headline {
-      font-size: 26px;
-      font-weight: 800;
-      color: var(--text);
-      line-height: 1.2;
-      margin-bottom: 16px;
-      letter-spacing: -0.5px;
-    }
-
-    .redfort-body {
-      font-size: 14px;
-      color: var(--muted);
-      line-height: 1.75;
-      max-width: 800px;
-    }
-
-    .redfort-img-side {
-      position: relative;
-      border: 1px solid var(--border);
-      border-radius: 4px;
-      overflow: hidden;
-    }
-
-    .redfort-img-side img {
-      width: 100%;
-      height: auto;
-      max-height: 550px;
-      object-fit: cover;
-      display: block;
-    }
-
-    .redfort-img-caption {
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      background: rgba(18, 18, 18, 0.85);
-      padding: 8px 12px;
+    text {
+      fill: white;
       font-size: 10px;
-      color: rgba(255, 255, 255, 0.7);
-      font-weight: 500;
-    }
-
-    /* ── GAP SECTION ── */
-    .gap-section {
-      background: rgba(191, 48, 3, 0.03);
-      border: 1px solid rgba(191, 48, 3, 0.1);
-      border-radius: 6px;
-      margin-top: 48px;
-    }
-
-    .gap-inner {
-      padding: 40px;
-      text-align: center;
-    }
-
-    .gap-quote {
-      font-size: clamp(20px, 3vw, 28px);
-      font-weight: 800;
-      line-height: 1.3;
-      color: var(--text);
-      max-width: 720px;
-      margin: 0 auto 20px;
-      letter-spacing: -0.5px;
-    }
-
-    .gap-quote em {
-      color: var(--tertiary);
-      font-style: normal;
-    }
-
-    .gap-sub {
-      font-size: 13.5px;
-      color: var(--muted);
-      max-width: 600px;
-      margin: 0 auto;
-      line-height: 1.7;
-    }
-
-    /* ── FOOTER ── */
-    footer {
-      border-top: 1px solid var(--border);
-      margin-top: 64px;
-      padding-top: 32px;
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      flex-wrap: wrap;
-      gap: 32px;
-    }
-
-    .footer-brand {
-      font-size: 14px;
-      font-weight: 700;
-      color: var(--text);
-      margin-bottom: 6px;
-    }
-
-    .footer-note {
-      font-size: 12px;
-      color: var(--muted);
-      max-width: 380px;
-      line-height: 1.7;
-    }
-
-    .footer-sources {
-      font-size: 11px;
-      color: var(--muted);
-      line-height: 1.8;
-      text-align: right;
-    }
-
-    /* ── FADE ANIMATION ── */
-    .fade {
-      opacity: 0;
-      transform: translateY(20px);
-      transition: opacity .65s ease, transform .65s ease;
-    }
-
-    .fade.in {
-      opacity: 1;
-      transform: none;
-    }
-
-    @media(max-width:768px) {
-      body {
-        padding: 10px;
-      }
-
-      .db-banner {
-        border-radius: 0;
-      }
-
-      .dashboard-container {
-        padding: 24px;
-        border-radius: 0;
-      }
-
-      .hero-divider {
-        grid-template-columns: 1fr;
-        gap: 20px;
-      }
-
-      .how-grid {
-        grid-template-columns: 1fr;
-      }
-
-      .redfort-inner {
-        gap: 20px;
-      }
-
-      footer {
-        flex-direction: column;
-        gap: 20px;
-      }
-
-      .footer-sources {
-        text-align: left;
-      }
+      text-anchor: middle;
+      pointer-events: none;
     }
   </style>
 </head>
 
 <body>
+<svg></svg>
 
-  <header class="db-banner">
-    <div class="db-banner-left">
-      <svg class="db-logo" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <rect x="3" y="3" width="18" height="18" rx="2" />
-        <path d="M7 8h10M7 12h10M7 16h6" />
-      </svg>
-      <span>Delhi Air Quality & Mortality Dashboard</span>
-    </div>
-  </header>
+<script>
 
-  <div class="dashboard-container">
-    <!-- Nav tags row -->
-    <div class="db-nav">
-      <div class="db-nav-left">
-        <span>DELHI</span>
-        <span class="db-nav-divider">/</span>
-        <span>AIR QUALITY INDEX</span>
-        <span class="db-nav-divider">/</span>
-        <span>2017—2024</span>
-      </div>
-      <div class="db-nav-right">
-        A SILENT CRISIS
-      </div>
-    </div>
+// 🌌 Canvas
+const width = window.innerWidth * 2;
+const height = window.innerHeight * 2;
 
-    <!-- ── HERO ── -->
-    <div class="db-red-line"></div>
-    <div class="sec-tag">THE DATA</div>
-    <h1 class="db-headline">What We Breathe Today,<br>Follows Us for Years.</h1>
-    <p class="db-sub">
-      Delhi has been measuring its air for years. It has never once measured what that air costs in human lives. This is
-      that count.</p>
-    <div class="hero-divider">
-      <div>
-        <div class="stat-val" style="color: var(--accent);">21,263</div>
-        <div class="stat-lbl"> Delhi’s 2024 pollution-linked deaths
-        </div>
-      </div>
-      <div>
-        <div class="stat-val" style="color: var(--secondary-blue);">185</div>
-        <div class="stat-lbl">Avg AQI in 2020<br>lowest in 8 years</div>
-      </div>
-      <div>
-        <div class="stat-val" style="color: var(--tertiary);">153,504</div>
-        <div class="stat-lbl"> lives lost across 8 years.<br>None officially linked to the air</div>
-      </div>
-    </div>
+const svg = d3.select("svg")
+  .attr("width", width)
+  .attr("height", height);
 
-    <!-- ── CHART SECTION ── -->
-    <div class="wrap fade">
-      <div class="sec-tag">The Data</div>
-      <h2 class="sec-title">The Air Improves.<br>The Dying Doesn't Stop.</h2>
-      <p class="sec-body">
-        Each bar is a year of Delhi's air. The red line is what it took from us counted in deaths that arrived quietly,
-        long after the air that caused them had cleared.
-      </p>
+// 🌟 Tooltip
+const tooltip = d3.select("body")
+  .append("div")
+  .style("position", "absolute")
+  .style("color", "white")
+  .style("background", "rgba(0,0,0,0.7)")
+  .style("padding", "6px 10px")
+  .style("border-radius", "6px")
+  .style("font-size", "12px")
+  .style("pointer-events", "none")
+  .style("opacity", 0);
 
-      <div class="chart-wrap">
-        <div class="chart-head">
-          <div class="chart-title">Annual Average AQI vs. Annual Linked Deaths — 2017 to 2024</div>
-          <div class="chart-desc">Each bar represents the annual average AQI. The red line shows the total deaths from
-            pollution-linked illnesses in that same year.</div>
-        </div>
-        <div class="chart-legend">
-          <div class="leg-item">
-            <div class="leg-dot" style="background:rgba(191, 48, 3, 0.45);"></div> Annual Average AQI
-          </div>
-          <div class="leg-item">
-            <div class="leg-line" style="background:#BF3003;"></div> Annual Deaths
-          </div>
-        </div>
-        <canvas id="mainChart" height="320"></canvas>
+d3.csv("genre_data.csv").then(data => {
 
-        <div class="callout">
-          <strong>In 2020, Delhi breathed its cleanest air in eight years. Deaths should have fallen. Instead, in 2021,
-            they hit their highest point in our entire dataset 25,090 people. Because lungs don't heal in a year.
-            Decades of damage don't reverse because one monsoon was cleaner. The body was already losing a war it never
-            knew it was fighting.
-        </div>
-      </div>
+  // ✅ Convert
+  data.forEach(d => {
+    d.avg_popularity = +d["avg_popularity"];
+    d.hit_percentage = +d["hit_percentage"];
+  });
 
-      <!-- Disease-wise Stacked Mortality Chart -->
-      <div class="chart-wrap" style="margin-top: 32px;">
-        <div class="chart-head">
-          <div class="chart-title">Disease-Specific Mortality Breakdown — 2017 to 2024</div>
-          <div class="chart-desc">Annual deaths broken down by five major health conditions linked to long-term air
-            pollution exposure.</div>
-        </div>
-        <div class="chart-legend" style="flex-wrap: wrap; row-gap: 8px;">
-          <div class="leg-item">
-            <div class="leg-dot" style="background:#0053FF;"></div> Lower Respiratory Infections
-          </div>
-          <div class="leg-item">
-            <div class="leg-dot" style="background:#3a75ff;"></div> Pneumonia
-          </div>
-          <div class="leg-item">
-            <div class="leg-dot" style="background:#5E72C3;"></div> Ischemic Heart Disease
-          </div>
-          <div class="leg-item">
-            <div class="leg-dot" style="background:#8596db;"></div> Cerebrovascular Disease (Stroke)
-          </div>
-          <div class="leg-item">
-            <div class="leg-dot" style="background:#aab6e8;"></div> Chronic Pulmonary Disease (COPD)
-          </div>
-        </div>
-        <canvas id="diseaseChart" height="320"></canvas>
-      </div>
-    </div>
+  // ✅ Clean
+  data = data.filter(d => d.avg_popularity && d.hit_percentage);
 
-    <hr class="divider">
+  // 🎨 Size
+  const sizeScale = d3.scaleLinear()
+    .domain([0, d3.max(data, d => d.avg_popularity)])
+    .range([15, 80]);
 
-    <!-- ── HOW IT WORKS ── -->
-    <div class="wrap fade">
-      <div class="sec-tag">Why the delay?</div>
-      <h2 class="sec-title">Your lungs remember<br>what AQI forgets.</h2>
-      <p class="sec-body">
-        AQI resets every midnight. Your lungs don't. This is what years of Delhi's air actually does slowly, silently,
-        irreversibly
-      </p>
+  // 🎯 BUCKET COLOR FUNCTION
+  function getColor(hit) {
+    if (hit <= 5) return "#4caf50";        // 🟢 low
+    else if (hit <= 12) return "#2196f3";  // 🔵 low-mid
+    else if (hit <= 20) return "#9c27b0";  // 🟣 medium
+    else if (hit <= 30) return "#ff9800";  // 🟠 high
+    else return "#f44336";                 // 🔴 very high
+  }
 
-      <div class="how-grid">
-        <div class="how-cell">
-          <div class="how-num">01</div>
-          <div class="how-title">The particle enters</div>
-          <div class="how-body">
-            PM2.5 is smaller than your body's defenses were built for. It bypasses your nose, your throat, your airways
-            and lands deep inside your lung tissue. From there, it enters your blood. You feel nothing. That is the
-            point.
+  // 🌌 Simulation
+  const simulation = d3.forceSimulation(data)
+    .force("charge", d3.forceManyBody().strength(40))
+    .force("center", d3.forceCenter(width / 2, height / 2))
+    .force("collision", d3.forceCollide().radius(d => sizeScale(d.avg_popularity) + 5))
+    .force("x", d3.forceX(width / 2).strength(0.05))
+    .force("y", d3.forceY(height / 2).strength(0.05));
 
+  // 🔵 Nodes
+  const nodes = svg.selectAll("circle")
+    .data(data)
+    .enter()
+    .append("circle")
+    .attr("r", d => sizeScale(d.avg_popularity))
+    .attr("fill", d => getColor(d.hit_percentage))
+    .attr("opacity", 0.9)
 
-          </div>
-        </div>
-        <div class="how-cell">
-          <div class="how-num">02</div>
-          <div class="how-title">Years of quiet damage</div>
-          <div class="how-body">
-            Your immune system registers every particle as an attack. Every day, it responds. Month after month, year
-            after year, it fights inflammation it cannot win in lung tissue, in artery walls, in the brain. No fever.
-            No warning. Just a slow, invisible accumulation of damage that shows up only when it's too late.
+    // 🌟 Hover
+    .on("mouseover", function(event, d) {
+      d3.select(this)
+        .transition()
+        .duration(200)
+        .attr("r", sizeScale(d.avg_popularity) * 1.5);
 
+      tooltip
+        .style("opacity", 1)
+        .html(`<strong>${d.genre}</strong><br>Hit: ${d.hit_percentage.toFixed(1)}%`);
+    })
 
-          </div>
-        </div>
-        <div class="how-cell">
-          <div class="how-num">03</div>
-          <div class="how-title">The system gives out</div>
-          <div class="how-body">
-            Eventually, the body fails a heart attack, a stroke, a lung that finally collapses. The data shows this
-            happens 12 to 18 months after peak pollution exposure. By then, the air that caused it has long since
-            cleared. The death certificate will say heart disease. It will not mention Delhi's air.
+    .on("mousemove", function(event) {
+      tooltip
+        .style("left", (event.pageX + 10) + "px")
+        .style("top", (event.pageY - 10) + "px");
+    })
 
+    .on("mouseout", function(event, d) {
+      d3.select(this)
+        .transition()
+        .duration(200)
+        .attr("r", sizeScale(d.avg_popularity));
 
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- ── RED FORT ── -->
-    <div class="redfort-section">
-      <div class="redfort-inner">
-        <div>
-          <div class="redfort-tag">Scale — 2024</div>
-          <h2 class="redfort-headline">What does 21,000 deaths actually look like?</h2>
-          <p class="redfort-body">
-            Picture Republic Day at Red Fort 21,000 people gathered, shoulder to shoulder. Now imagine every single one
-            of them dead by year's end. That is not a thought experiment. That is Delhi's 2024 death toll from
-            pollution-linked illness. One crowd. One year. No official record linking any of it to the air
-          </p>
-        </div>
-        <div class="redfort-img-side">
-          <img src="RED FORT.jpeg" alt="Red Fort, Delhi"
-            onerror="this.style.background='#1a1a1a';this.style.height='320px';this.removeAttribute('src');">
-          <div class="redfort-img-caption">Red Fort, Delhi capacity of approx. 21,000 people on Republic Day</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- ── THE GAP ── -->
-    <div class="gap-section">
-      <div class="gap-inner fade">
-        <p class="gap-quote">
-          The data above points to a clear co-relationship between Delhi's air and these deaths<br>
-          <em>but official causal data connecting them does not publicly exist.</em>
-        </p>
-        <p class="gap-sub">
-          Correlation is not causation. But when the air worsens and deaths follow year after year, disease after
-          disease at what point does correlation become impossible to ignore? India records AQI daily. It does not
-          officially track how many people die because of it. There is no national
-          registry that links a death certificate to years of pollution exposure. So we must ask: who is responsible for
-          collecting this data, and why hasn't it been collected?
-        </p>
-      </div>
-    </div>
-
-    <!-- ── FOOTER ── -->
-    <footer>
-      <div>
-        <div class="footer-brand">Delhi's Air — A Silent Crisis</div>
-        <p class="footer-note">A data visualization exploring the lag relationship between air quality and mortality in
-          Delhi, 2017–2024. Built as part of an IxD research project.</p>
-      </div>
-      <div class="footer-sources">
-        Data Sources<br>
-        Delhi AQI — CPCB Daily Monitoring Data<br>
-        Mortality — DES Delhi, Birth & Death Registration Reports<br>
-        <a href="https://des.delhi.gov.in/des/birth-death-registration-reports" target="_blank" style="color: inherit;">des.delhi.gov.in/des/birth-death-registration-reports</a><br>
-        Disease categories — WHO Pollution Attribution Framework<br><br>
-        This visualization presents a research hypothesis,<br>not clinical or epidemiological proof.
-      </div>
-    </footer>
-  </div>
-
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
-  <script>
-    // Data: AQI and Deaths from 2017 to 2024
-    const labels = ['2017', '2018', '2019', '2020', '2021', '2022', '2023', '2024'];
-    const aqiData = [229, 228, 215, 185, 209, 209, 204, 209];
-    const deaths = [12591, 14351, 13819, 12649, 25090, 17640, 16101, 21263];
-
-    // Bar colours — soft pink/red, slightly darker for 2020 lockdown
-    const barColors = aqiData.map((v, i) =>
-      i === 3 ? 'rgba(191, 48, 3, 0.35)' : 'rgba(191, 48, 3, 0.12)'
-    );
-    const barBorders = aqiData.map((v, i) =>
-      i === 3 ? 'rgba(191, 48, 3, 0.6)' : 'rgba(191, 48, 3, 0.2)'
-    );
-
-    Chart.defaults.color = '#64748b';
-    Chart.defaults.borderColor = '#f1f5f9';
-    Chart.defaults.font.family = 'Inter';
-    Chart.defaults.font.size = 11;
-
-    const ctx = document.getElementById('mainChart').getContext('2d');
-    new Chart(ctx, {
-      data: {
-        labels,
-        datasets: [
-          {
-            type: 'bar',
-            label: 'Annual Average AQI',
-            data: aqiData,
-            backgroundColor: barColors,
-            borderColor: barBorders,
-            borderWidth: 1.5,
-            yAxisID: 'yAQI',
-            order: 2,
-            borderRadius: 0,
-          },
-          {
-            type: 'line',
-            label: 'Annual Deaths',
-            data: deaths,
-            borderColor: '#BF3003',
-            backgroundColor: 'transparent',
-            borderWidth: 2.5,
-            pointRadius: 6,
-            pointBackgroundColor: deaths.map((v, i) => i === 4 ? '#BF3003' : 'rgba(191,48,3,0.5)'),
-            pointBorderColor: '#BF3003',
-            pointBorderWidth: 2,
-            tension: 0.35,
-            yAxisID: 'yDeaths',
-            order: 1,
-          }
-        ]
-      },
-      options: {
-        responsive: true,
-        interaction: { mode: 'index', intersect: false },
-        plugins: {
-          legend: { display: false },
-          tooltip: {
-            backgroundColor: '#ffffff',
-            borderColor: '#e2e8f0',
-            borderWidth: 1,
-            padding: 12,
-            titleColor: '#121212',
-            bodyColor: '#64748b',
-            callbacks: {
-              title: items => items[0].label,
-              label: item => {
-                if (item.datasetIndex === 0) return `  AQI: ${item.raw}`;
-                return `  Deaths: ${item.raw.toLocaleString()}`;
-              },
-              afterBody: items => {
-                const i = items[0].dataIndex;
-                if (i === 3) return ['', '  ← COVID lockdown year.', '  Cleanest air in 8 years.'];
-                if (i === 4) return ['', '  ← Peak mortality year.', '  25,090 deaths from linked illnesses.'];
-                return [];
-              }
-            }
-          }
-        },
-        scales: {
-          x: {
-            grid: { display: false },
-            ticks: { font: { size: 11 }, color: '#64748b' }
-          },
-          yAQI: {
-            position: 'left',
-            min: 0, max: 280,
-            grid: { color: '#f1f5f9' },
-            title: { display: true, text: 'Average AQI', color: '#64748b', font: { size: 11, weight: 'bold' } },
-            ticks: {
-              color: '#64748b',
-              callback: v => {
-                if (v === 150) return '150 ⚠';
-                if (v === 200) return '200 ☠';
-                return v;
-              }
-            }
-          },
-          yDeaths: {
-            position: 'right',
-            min: 8000, max: 30000,
-            grid: { display: false },
-            title: { display: true, text: 'Annual Deaths', color: '#64748b', font: { size: 11, weight: 'bold' } },
-            ticks: {
-              color: '#64748b',
-              callback: v => (v / 1000).toFixed(0) + 'k'
-            }
-          }
-        }
-      }
+      tooltip.style("opacity", 0);
     });
 
-    const ctxDisease = document.getElementById('diseaseChart').getContext('2d');
-    new Chart(ctxDisease, {
-      type: 'bar',
-      data: {
-        labels,
-        datasets: [
-          {
-            label: 'Lower Respiratory Infections',
-            data: [2152, 2643, 2533, 2196, 3282, 2148, 2713, 2340],
-            backgroundColor: 'rgba(0, 83, 255, 0.85)',
-            borderColor: '#0053FF',
-            borderWidth: 1,
-          },
-          {
-            label: 'Pneumonia',
-            data: [1643, 2049, 2145, 2107, 6327, 2163, 3606, 3713],
-            backgroundColor: 'rgba(58, 117, 255, 0.85)',
-            borderColor: '#3a75ff',
-            borderWidth: 1,
-          },
-          {
-            label: 'Ischemic Heart Disease',
-            data: [1526, 2145, 2711, 1544, 2727, 1465, 3106, 3656],
-            backgroundColor: 'rgba(94, 114, 195, 0.85)',
-            borderColor: '#5E72C3',
-            borderWidth: 1,
-          },
-          {
-            label: 'Cerebrovascular Disease (Stroke)',
-            data: [1797, 1809, 2167, 2134, 2484, 2469, 2551, 2408],
-            backgroundColor: 'rgba(133, 150, 219, 0.85)',
-            borderColor: '#8596db',
-            borderWidth: 1,
-          },
-          {
-            label: 'Chronic Pulmonary Disease (COPD)',
-            data: [5473, 5705, 4263, 4668, 10270, 9395, 4125, 9146],
-            backgroundColor: 'rgba(170, 182, 232, 0.85)',
-            borderColor: '#aab6e8',
-            borderWidth: 1,
-          }
-        ]
-      },
-      options: {
-        responsive: true,
-        interaction: { mode: 'nearest', intersect: true },
-        plugins: {
-          legend: { display: false },
-          tooltip: {
-            mode: 'nearest',
-            intersect: true,
-            backgroundColor: '#ffffff',
-            borderColor: '#e2e8f0',
-            borderWidth: 1,
-            padding: 12,
-            titleColor: '#121212',
-            bodyColor: '#64748b',
-            callbacks: {
-              title: items => `Year: ${items[0].label}`,
-              label: item => {
-                const val = item.raw;
-                const idx = item.dataIndex;
-                const ds = item.chart.data.datasets;
-                let total = 0;
-                for (let k = 0; k < ds.length; k++) {
-                  total += ds[k].data[idx];
-                }
-                const pct = ((val / total) * 100).toFixed(1);
-                return `  ${item.dataset.label}: ${val.toLocaleString()} (${pct}%)`;
-              },
-              footer: items => {
-                const idx = items[0].dataIndex;
-                const ds = items[0].chart.data.datasets;
-                let total = 0;
-                for (let k = 0; k < ds.length; k++) {
-                  total += ds[k].data[idx];
-                }
-                return `  Total Deaths: ${total.toLocaleString()}`;
-              }
-            }
-          }
-        },
-        scales: {
-          x: {
-            stacked: true,
-            grid: { display: false },
-            ticks: { font: { size: 11 }, color: '#64748b' }
-          },
-          y: {
-            stacked: true,
-            grid: { color: '#f1f5f9' },
-            ticks: {
-              color: '#64748b',
-              callback: v => (v / 1000).toFixed(0) + 'k'
-            },
-            title: { display: true, text: 'Total Annual Deaths', color: '#64748b', font: { size: 11, weight: 'bold' } }
-          }
-        }
-      }
-    });
+  // 🏷 Labels
+  const labels = svg.selectAll("text")
+    .data(data)
+    .enter()
+    .append("text")
+    .text(d => d.genre);
 
-    // Fade in on scroll
-    const fades = document.querySelectorAll('.fade');
-    const obs = new IntersectionObserver(entries => {
-      entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); obs.unobserve(e.target); } });
-    }, { threshold: 0.1 });
-    fades.forEach(el => obs.observe(el));
+  // 🔄 Animation
+  simulation.on("tick", () => {
+    nodes
+      .attr("cx", d => d.x)
+      .attr("cy", d => d.y);
 
-    // Stagger hero stats
-    document.querySelectorAll('.hero-divider > div').forEach((el, i) => {
-      el.style.opacity = '0'; el.style.transform = 'translateY(12px)';
-      setTimeout(() => {
-        el.style.transition = 'all 0.6s ease';
-        el.style.opacity = '1'; el.style.transform = 'none';
-      }, 700 + i * 130);
-    });
-  </script>
+    labels
+      .attr("x", d => d.x)
+      .attr("y", d => d.y);
+  });
+
+});
+</script>
+
 </body>
-
 </html>
